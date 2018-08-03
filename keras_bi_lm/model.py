@@ -1,4 +1,5 @@
 import keras
+import numpy as np
 
 
 class BiLM(object):
@@ -40,36 +41,51 @@ class BiLM(object):
             rnn_recurrent_dropouts = [rnn_recurrent_dropouts] * rnn_layer_num
 
         input_layer = keras.layers.Input(shape=(None,),
-                                         name='Input')
+                                         name='Bi-LM-Input')
         embedding_layer = keras.layers.Embedding(input_dim=token_num,
                                                  output_dim=embedding_dim,
-                                                 name='Embedding')(input_layer)
+                                                 name='Bi-LM-Embedding')(input_layer)
 
-        last_layer, rnn_layers = embedding_layer, []
+        last_layer_forward, last_layer_backward = embedding_layer, embedding_layer
+        rnn_layers_forward, rnn_layers_backward = [], []
         if rnn_type.lower() == 'gru':
             rnn = keras.layers.GRU
         else:
             rnn = keras.layers.LSTM
         for i in range(rnn_layer_num):
-            rnn_layer = keras.layers.Bidirectional(rnn(units=rnn_units[i],
-                                                       dropout=rnn_dropouts[i],
-                                                       recurrent_dropout=rnn_recurrent_dropouts[i],
-                                                       return_sequences=True),
-                                                   name='%s-%d' % (rnn_type.upper(), i + 1))(last_layer)
-            last_layer = rnn_layer
-            rnn_layers.append(rnn_layer)
+            rnn_layer_forward = rnn(units=rnn_units[i],
+                                    dropout=rnn_dropouts[i],
+                                    recurrent_dropout=rnn_recurrent_dropouts[i],
+                                    go_backwards=False,
+                                    return_sequences=True,
+                                    name='Bi-LM-%s-Forward-%d' % (rnn_type.upper(), i + 1))(last_layer_forward)
+            last_layer_forward = rnn_layer_forward
+            rnn_layers_forward.append(rnn_layer_forward)
+            rnn_layer_backward = rnn(units=rnn_units[i],
+                                     dropout=rnn_dropouts[i],
+                                     recurrent_dropout=rnn_recurrent_dropouts[i],
+                                     go_backwards=True,
+                                     return_sequences=True,
+                                     name='Bi-LM-%s-Backward-%d' % (rnn_type.upper(), i + 1))(last_layer_backward)
+            last_layer_backward = rnn_layer_backward
+            rnn_layers_backward.append(rnn_layer_backward)
 
-        if len(rnn_layers) > rnn_keep_num:
-            rnn_layers = rnn_layers[-rnn_keep_num:]
-        if len(rnn_layers) == 1:
-            last_layer = rnn_layers[0]
+        if len(rnn_layers_forward) > rnn_keep_num:
+            rnn_layers_forward = rnn_layers_forward[-rnn_keep_num:]
+            rnn_layers_backward = rnn_layers_backward[-rnn_keep_num:]
+        if len(rnn_layers_forward) == 1:
+            last_layer_forward = rnn_layers_forward[0]
+            last_layer_backward = rnn_layers_backward[0]
         else:
-            last_layer = keras.layers.Concatenate(name='Concatenation')(rnn_layers)
+            last_layer_forward = keras.layers.Concatenate(name='Bi-LM-Forward')(rnn_layers_forward)
+            last_layer_backward = keras.layers.Concatenate(name='Bi-LM-Backward')(rnn_layers_backward)
 
-        dense_layer = keras.layers.Dense(units=token_num,
-                                         name='Dense')(last_layer)
+        dense_layer_forward = keras.layers.Dense(units=token_num,
+                                                 name='Bi-LM-Dense-Forward')(last_layer_forward)
+        dense_layer_backward = keras.layers.Dense(units=token_num,
+                                                  name='Bi-LM-Dense-Backward')(last_layer_backward)
 
-        model = keras.models.Model(inputs=input_layer, outputs=dense_layer)
+        model = keras.models.Model(inputs=input_layer, outputs=[dense_layer_forward, dense_layer_backward])
         model.compile(optimizer=keras.optimizers.Adam(lr=learning_rate),
                       loss=keras.losses.sparse_categorical_crossentropy,
                       metrics=[keras.metrics.sparse_categorical_accuracy])
@@ -80,3 +96,39 @@ class BiLM(object):
 
     def load_model(self, model_path):
         self.model = keras.models.load_model(model_path)
+
+    @staticmethod
+    def get_batch(sentences,
+                  token_dict,
+                  ignore_case=False,
+                  unk_index=1,
+                  eos_index=2):
+        """Get a batch of inputs and outputs from given sentences.
+
+        :param sentences: A list of list of tokens.
+        :param token_dict: The dict that maps a token to an integer. `<UNK>` and `<EOS>` should be preserved.
+        :param ignore_case: Whether ignoring the case of the token.
+        :param unk_index: The index for unknown token.
+        :param eos_index: The index for ending of sentence.
+
+        :return inputs, outputs: The inputs and outputs of the batch.
+        """
+        batch_size = len(sentences)
+        max_sentence_len = max(map(len, sentences))
+        inputs = [[0] * max_sentence_len for _ in range(batch_size)]
+        outputs_forward = [[0] * max_sentence_len for _ in range(batch_size)]
+        outputs_backward = [[0] * max_sentence_len for _ in range(batch_size)]
+        for i, sentence in enumerate(sentences):
+            outputs_forward[i][len(sentence) - 1] = eos_index
+            outputs_backward[i][0] = eos_index
+            for j, token in enumerate(sentence):
+                if ignore_case:
+                    index = token_dict.get(token.lower(), unk_index)
+                else:
+                    index = token_dict.get(token, unk_index)
+                inputs[i][j] = index
+                if j - 1 >= 0:
+                    outputs_forward[i][j - 1] = index
+                if j + 1 < len(sentence):
+                    outputs_backward[i][j + 1] = index
+        return np.asarray(inputs), [np.asarray(outputs_forward), np.asarray(outputs_backward)]

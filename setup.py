@@ -11,6 +11,7 @@ setup(
     description='',
     long_description=open('README.rst', 'r').read(),
     install_requires=[
+        'numpy',
         'keras',
     ],
     classifiers=(
