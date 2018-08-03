@@ -28,13 +28,13 @@ class TestGetBatch(unittest.TestCase):
         ]
         self.assertEqual(expect, inputs.tolist())
         expect = [
-            [4, 5, 6, 7, 2, 0],
-            [1, 9, 10, 11, 12, 2],
+            [[4], [5], [6], [7], [2], [0]],
+            [[1], [9], [10], [11], [12], [2]],
         ]
         self.assertEqual(expect, outputs[0].tolist())
         expect = [
-            [2, 1, 4, 5, 6, 0],
-            [2, 8, 1, 9, 10, 11],
+            [[2], [1], [4], [5], [6], [0]],
+            [[2], [8], [1], [9], [10], [11]],
         ]
         self.assertEqual(expect, outputs[1].tolist())
         inputs, outputs = BiLM.get_batch(sentences, token_dict, ignore_case=True)
@@ -44,12 +44,12 @@ class TestGetBatch(unittest.TestCase):
         ]
         self.assertEqual(expect, inputs.tolist())
         expect = [
-            [4, 5, 6, 7, 2, 0],
-            [1, 9, 10, 11, 12, 2],
+            [[4], [5], [6], [7], [2], [0]],
+            [[1], [9], [10], [11], [12], [2]],
         ]
         self.assertEqual(expect, outputs[0].tolist())
         expect = [
-            [2, 3, 4, 5, 6, 0],
-            [2, 8, 1, 9, 10, 11],
+            [[2], [3], [4], [5], [6], [0]],
+            [[2], [8], [1], [9], [10], [11]],
         ]
         self.assertEqual(expect, outputs[1].tolist())

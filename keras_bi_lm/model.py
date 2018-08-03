@@ -81,8 +81,10 @@ class BiLM(object):
             last_layer_backward = keras.layers.Concatenate(name='Bi-LM-Backward')(rnn_layers_backward)
 
         dense_layer_forward = keras.layers.Dense(units=token_num,
+                                                 activation='softmax',
                                                  name='Bi-LM-Dense-Forward')(last_layer_forward)
         dense_layer_backward = keras.layers.Dense(units=token_num,
+                                                  activation='softmax',
                                                   name='Bi-LM-Dense-Backward')(last_layer_backward)
 
         model = keras.models.Model(inputs=input_layer, outputs=[dense_layer_forward, dense_layer_backward])
@@ -131,4 +133,26 @@ class BiLM(object):
                     outputs_forward[i][j - 1] = index
                 if j + 1 < len(sentence):
                     outputs_backward[i][j + 1] = index
-        return np.asarray(inputs), [np.asarray(outputs_forward), np.asarray(outputs_backward)]
+        outputs_forward = np.expand_dims(np.asarray(outputs_forward), axis=-1)
+        outputs_backward = np.expand_dims(np.asarray(outputs_backward), axis=-1)
+        return np.asarray(inputs), [outputs_forward, outputs_backward]
+
+    def fit(self, inputs, outputs, epochs=1):
+        """Simple wrapper of model.fit.
+
+        :param inputs: Inputs.
+        :param outputs: List of forward and backward outputs.
+        :param epochs: Number of epoch.
+
+        :return: None
+        """
+        self.model.fit(inputs, outputs, epochs=epochs)
+
+    def predict(self, inputs):
+        """Simple wrapper of model.predict.
+
+        :param inputs: Inputs.
+
+        :return: Predicted outputs.
+        """
+        return self.model.predict(inputs)
