@@ -190,18 +190,20 @@ class BiLM(object):
         """
         return self.model.predict(inputs)
 
-    def get_feature_layers(self, trainable=False):
+    def get_feature_layers(self, trainable=False, input_layer=None):
         """Get layers that output the Bi-LM feature.
 
         :param trainable: Whether the layers are still trainable.
+        :param input_layer: Use existing input layer.
 
-        :return input_layer, output_layer: Input and output layer.
+        :return [input_layer,] output_layer: Input and output layer.
         """
-        input_layer = self.model.layers[0].input
-        forward_layer = self.model.get_layer(name='Bi-LM-Forward').output
-        backward_layer = self.model.get_layer(name='Bi-LM-Backward').output
-        output_layer = keras.layers.Concatenate(name='Bi-LM-Feature')([forward_layer, backward_layer])
+        model = keras.models.clone_model(self.model, input_layer)
         if not trainable:
-            for layer in self.model.layers:
+            for layer in model.layers:
                 layer.trainable = False
+        input_layer = model.layers[0].input
+        forward_layer = model.get_layer(name='Bi-LM-Forward').output
+        backward_layer = model.get_layer(name='Bi-LM-Backward').output
+        output_layer = keras.layers.Concatenate(name='Bi-LM-Feature')([forward_layer, backward_layer])
         return input_layer, output_layer

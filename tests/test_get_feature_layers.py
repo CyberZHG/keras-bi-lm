@@ -28,3 +28,10 @@ class TestGetFeatureLayers(unittest.TestCase):
         self.assertEqual((None, None, 300), output_layer._keras_shape)
         model = keras.models.Model(inputs=input_layer, outputs=output_layer)
         model.summary()
+
+    def test_input_layer(self):
+        input_layer = keras.layers.Input((None,), name='New-Input')
+        bi_lm = BiLM(token_num=104, rnn_layer_num=6, rnn_keep_num=3, rnn_units=50, rnn_type='gru')
+        output_layer = bi_lm.get_feature_layers(input_layer=input_layer)
+        model = keras.models.Model(inputs=input_layer, outputs=output_layer)
+        model.summary()
