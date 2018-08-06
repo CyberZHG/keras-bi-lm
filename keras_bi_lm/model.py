@@ -14,6 +14,7 @@ class BiLM(object):
                  rnn_type='lstm',
                  rnn_dropouts=0.1,
                  rnn_recurrent_dropouts=0.1,
+                 use_bidirectional=False,
                  learning_rate=1e-3):
         """Initialize Bi-LM model.
 
@@ -26,6 +27,7 @@ class BiLM(object):
         :param rnn_type: Type of RNN, 'gru' or 'lstm'.
         :param rnn_dropouts: A float or a list representing the dropout of the RNN unit.
         :param rnn_recurrent_dropouts: A float or a list representing the recurrent dropout of the RNN unit.
+        :param use_bidirectional: Use bidirectional RNN in both forward and backward prediction.
         :param learning_rate: Learning rate.
 
         :return model: The built model.
@@ -57,24 +59,47 @@ class BiLM(object):
                 name = 'Bi-LM-Forward'
             else:
                 name = 'Bi-LM-%s-Forward-%d' % (rnn_type.upper(), i + 1)
-            rnn_layer_forward = rnn(units=rnn_units[i],
-                                    dropout=rnn_dropouts[i],
-                                    recurrent_dropout=rnn_recurrent_dropouts[i],
-                                    go_backwards=False,
-                                    return_sequences=True,
-                                    name=name)(last_layer_forward)
+            if use_bidirectional:
+                rnn_layer_forward = keras.layers.Bidirectional(
+                    rnn(
+                        units=rnn_units[i],
+                        dropout=rnn_dropouts[i],
+                        recurrent_dropout=rnn_recurrent_dropouts[i],
+                        return_sequences=True,
+                    ),
+                    name=name,
+                )(last_layer_forward)
+            else:
+                rnn_layer_forward = rnn(units=rnn_units[i],
+                                        dropout=rnn_dropouts[i],
+                                        recurrent_dropout=rnn_recurrent_dropouts[i],
+                                        go_backwards=False,
+                                        return_sequences=True,
+                                        name=name)(last_layer_forward)
             last_layer_forward = rnn_layer_forward
             rnn_layers_forward.append(rnn_layer_forward)
             if rnn_layer_num == 1:
                 name = 'Bi-LM-Backward'
             else:
                 name = 'Bi-LM-%s-Backward-%d' % (rnn_type.upper(), i + 1)
-            rnn_layer_backward = rnn(units=rnn_units[i],
-                                     dropout=rnn_dropouts[i],
-                                     recurrent_dropout=rnn_recurrent_dropouts[i],
-                                     go_backwards=True,
-                                     return_sequences=True,
-                                     name=name)(last_layer_backward)
+            if use_bidirectional:
+                rnn_layer_backward = keras.layers.Bidirectional(
+                    rnn(
+                        units=rnn_units[i],
+                        dropout=rnn_dropouts[i],
+                        recurrent_dropout=rnn_recurrent_dropouts[i],
+                        go_backwards=True,
+                        return_sequences=True,
+                    ),
+                    name=name,
+                )(last_layer_backward)
+            else:
+                rnn_layer_backward = rnn(units=rnn_units[i],
+                                         dropout=rnn_dropouts[i],
+                                         recurrent_dropout=rnn_recurrent_dropouts[i],
+                                         go_backwards=True,
+                                         return_sequences=True,
+                                         name=name)(last_layer_backward)
             last_layer_backward = rnn_layer_backward
             rnn_layers_backward.append(rnn_layer_backward)
 

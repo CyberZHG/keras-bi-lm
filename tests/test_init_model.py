@@ -9,9 +9,13 @@ class TestInitModel(unittest.TestCase):
         bi_lm.model.summary()
 
     def test_init_multi(self):
-        bi_lm = BiLM(token_num=101, rnn_layer_num=3, rnn_keep_num=3)
+        bi_lm = BiLM(token_num=102, rnn_layer_num=3, rnn_keep_num=3)
         bi_lm.model.summary()
 
     def test_init_multi_keep(self):
-        bi_lm = BiLM(token_num=101, rnn_layer_num=6, rnn_keep_num=3)
+        bi_lm = BiLM(token_num=103, rnn_layer_num=6, rnn_keep_num=3)
+        bi_lm.model.summary()
+
+    def test_bidirectional(self):
+        bi_lm = BiLM(token_num=104, rnn_layer_num=1, use_bidirectional=True)
         bi_lm.model.summary()

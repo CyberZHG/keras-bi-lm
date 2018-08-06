@@ -47,7 +47,6 @@ Before using it as a feature extraction method, the language model must be train
        'makes': 8, 'a': 9, 'dull': 10, 'boy': 11, '.': 12,
    }
    token_dict_rev = {v: k for k, v in token_dict.items()}
-   # BiLM.get_batch is a static helper function for
    inputs, outputs = BiLM.get_batch(sentences,
                                     token_dict,
                                     ignore_case=True,
