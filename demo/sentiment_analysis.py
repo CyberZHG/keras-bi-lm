@@ -6,11 +6,13 @@ import keras
 from keras_wc_embd import get_dicts_generator, get_word_list_eng
 from keras_bi_lm import BiLM
 
-DEBUG = True
+DEBUG = False
 
 DATA_ROOT = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'dataset', 'aclImdb')
 TRAIN_ROOT = os.path.join(DATA_ROOT, 'train')
 TEST_ROOT = os.path.join(DATA_ROOT, 'test')
+
+LM_MODEL_PATH = 'lm.h5'
 
 # Get data for training
 print('Get train data entries...')
@@ -45,7 +47,7 @@ if DEBUG:
 print('Train: %d  Validate: %d' % (train_num, val_num))
 
 # Generate dictionaries for words and characters
-print('Get dictionaries....')
+print('Get dictionary`....')
 dicts_generator = get_dicts_generator(
     word_min_freq=5,
     char_min_freq=2,
@@ -68,11 +70,30 @@ for file_name in train_neg_files:
 word_dict, _, _ = dicts_generator(return_dict=True)
 print('Word dict size: %d' % len(word_dict))
 
+
 # Training LM
+def train_lm_generator(batch_size=32):
+    while True:
+        index = 0
+        while index * batch_size < len(sentences):
+            batch_sentences = sentences[index * batch_size:(index + 1) * batch_size]
+            inputs, outputs = BiLM.get_batch(batch_sentences,
+                                             token_dict=word_dict,
+                                             ignore_case=True)
+            yield inputs, outputs
+
 print('Fit LM...')
-bi_lm = BiLM(token_num=len(word_dict))
-inputs, outputs = bi_lm.get_batch(sentences, token_dict=word_dict, ignore_case=True)
-bi_lm.fit(inputs, outputs, epochs=epoch_num)
+if os.path.exists(LM_MODEL_PATH):
+    bi_lm = BiLM(model_path=LM_MODEL_PATH)
+else:
+    bi_lm = BiLM(token_num=len(word_dict))
+    bi_lm.model.fit_generator(
+        generator=train_lm_generator(batch_size=batch_size),
+        steps_per_epoch=len(sentences) // batch_size,
+        epochs=epoch_num,
+        verbose=True,
+    )
+    bi_lm.save_model(LM_MODEL_PATH)
 
 # Build model for classification
 input_layer, feature_layer = bi_lm.get_feature_layers()
@@ -85,7 +106,12 @@ dense_layer = keras.layers.Dense(
     activation='softmax',
     name='Dense',
 )(lstm_layer)
-model = keras.models.Model(inputs=inputs, outputs=dense_layer)
+model = keras.models.Model(inputs=input_layer, outputs=dense_layer)
+model.compile(
+    optimizer='adam',
+    loss='categorical_crossentropy',
+    metrics=['categorical_accuracy'],
+)
 model.summary()
 
 
