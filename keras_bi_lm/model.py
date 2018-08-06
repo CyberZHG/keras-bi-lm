@@ -53,20 +53,28 @@ class BiLM(object):
         else:
             rnn = keras.layers.LSTM
         for i in range(rnn_layer_num):
+            if rnn_layer_num == 1:
+                name = 'Bi-LM-Forward'
+            else:
+                name = 'Bi-LM-%s-Forward-%d' % (rnn_type.upper(), i + 1)
             rnn_layer_forward = rnn(units=rnn_units[i],
                                     dropout=rnn_dropouts[i],
                                     recurrent_dropout=rnn_recurrent_dropouts[i],
                                     go_backwards=False,
                                     return_sequences=True,
-                                    name='Bi-LM-%s-Forward-%d' % (rnn_type.upper(), i + 1))(last_layer_forward)
+                                    name=name)(last_layer_forward)
             last_layer_forward = rnn_layer_forward
             rnn_layers_forward.append(rnn_layer_forward)
+            if rnn_layer_num == 1:
+                name = 'Bi-LM-Backward'
+            else:
+                name = 'Bi-LM-%s-Backward-%d' % (rnn_type.upper(), i + 1)
             rnn_layer_backward = rnn(units=rnn_units[i],
                                      dropout=rnn_dropouts[i],
                                      recurrent_dropout=rnn_recurrent_dropouts[i],
                                      go_backwards=True,
                                      return_sequences=True,
-                                     name='Bi-LM-%s-Backward-%d' % (rnn_type.upper(), i + 1))(last_layer_backward)
+                                     name=name)(last_layer_backward)
             last_layer_backward = rnn_layer_backward
             rnn_layers_backward.append(rnn_layer_backward)
 
@@ -156,3 +164,14 @@ class BiLM(object):
         :return: Predicted outputs.
         """
         return self.model.predict(inputs)
+
+    def get_feature_layers(self):
+        """Get layers that output the Bi-LM feature.
+
+        :return input_layer, output_layer: Input and output layer.
+        """
+        input_layer = self.model.layers[0].input
+        forward_layer = self.model.get_layer(name='Bi-LM-Forward').output
+        backward_layer = self.model.get_layer(name='Bi-LM-Backward').output
+        output_layer = keras.layers.Concatenate(name='Bi-LM-Feature')([forward_layer, backward_layer])
+        return input_layer, output_layer

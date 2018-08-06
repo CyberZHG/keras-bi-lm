@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-rm README.rst && m2r README.md
-rm dist/*
-python setup.py sdist bdist_wheel
+rm -f README.rst && m2r README.md
+rm -f dist/*
+python3 setup.py sdist
 twine upload dist/*
