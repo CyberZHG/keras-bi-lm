@@ -202,8 +202,10 @@ class BiLM(object):
         if not trainable:
             for layer in model.layers:
                 layer.trainable = False
-        input_layer = model.layers[0].input
         forward_layer = model.get_layer(name='Bi-LM-Forward').output
         backward_layer = model.get_layer(name='Bi-LM-Backward').output
         output_layer = keras.layers.Concatenate(name='Bi-LM-Feature')([forward_layer, backward_layer])
-        return input_layer, output_layer
+        if input_layer is None:
+            input_layer = model.layers[0].input
+            return input_layer, output_layer
+        return output_layer
