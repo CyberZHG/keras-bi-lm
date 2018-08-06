@@ -2,13 +2,13 @@ from setuptools import setup
 
 setup(
     name='keras-bi-lm',
-    version='0.0.2',
+    version='0.0.3',
     packages=['keras_bi_lm'],
     url='https://github.com/PoWWoP/keras_bi_lm',
     license='LICENSE',
     author='CyberZHG',
     author_email='CyberZHG@gmail.com',
-    description='',
+    description='git lo',
     long_description=open('README.rst', 'r').read(),
     install_requires=[
         'numpy',

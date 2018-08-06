@@ -82,6 +82,7 @@ def train_lm_generator(batch_size=32):
                                              ignore_case=True)
             yield inputs, outputs
 
+
 print('Fit LM...')
 if os.path.exists(LM_MODEL_PATH):
     bi_lm = BiLM(model_path=LM_MODEL_PATH)
