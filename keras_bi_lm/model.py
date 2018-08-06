@@ -165,8 +165,10 @@ class BiLM(object):
         """
         return self.model.predict(inputs)
 
-    def get_feature_layers(self):
+    def get_feature_layers(self, trainable=False):
         """Get layers that output the Bi-LM feature.
+
+        :param trainable: Whether the layers are still trainable.
 
         :return input_layer, output_layer: Input and output layer.
         """
@@ -174,4 +176,7 @@ class BiLM(object):
         forward_layer = self.model.get_layer(name='Bi-LM-Forward').output
         backward_layer = self.model.get_layer(name='Bi-LM-Backward').output
         output_layer = keras.layers.Concatenate(name='Bi-LM-Feature')([forward_layer, backward_layer])
+        if not trainable:
+            for layer in self.model.layers:
+                layer.trainable = False
         return input_layer, output_layer
