@@ -190,11 +190,11 @@ class BiLM(object):
         """
         return self.model.predict(inputs)
 
-    def get_feature_layers(self, trainable=False, input_layer=None):
+    def get_feature_layers(self, input_layer=None, trainable=False):
         """Get layers that output the Bi-LM feature.
 
-        :param trainable: Whether the layers are still trainable.
         :param input_layer: Use existing input layer.
+        :param trainable: Whether the layers are still trainable.
 
         :return [input_layer,] output_layer: Input and output layer.
         """

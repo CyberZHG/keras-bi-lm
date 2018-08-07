@@ -28,6 +28,12 @@ class TestGetFeatureLayers(unittest.TestCase):
         self.assertEqual((None, None, 300), output_layer._keras_shape)
         model = keras.models.Model(inputs=input_layer, outputs=output_layer)
         model.summary()
+        for layer in bi_lm.model.layers:
+            try:
+                new_layer = model.get_layer(name=layer.name)
+                self.assertEqual(layer.get_weights(), new_layer.get_weights())
+            except ValueError:
+                pass
 
     def test_input_layer(self):
         input_layer = keras.layers.Input((None,), name='New-Input')
@@ -35,3 +41,9 @@ class TestGetFeatureLayers(unittest.TestCase):
         output_layer = bi_lm.get_feature_layers(input_layer=input_layer)
         model = keras.models.Model(inputs=input_layer, outputs=output_layer)
         model.summary()
+        for layer in bi_lm.model.layers:
+            try:
+                new_layer = model.get_layer(name=layer.name)
+                self.assertEqual(layer.get_weights(), new_layer.get_weights())
+            except ValueError:
+                pass
