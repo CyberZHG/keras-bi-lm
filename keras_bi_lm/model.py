@@ -8,6 +8,8 @@ class BiLM(object):
                  token_num=128,
                  model_path='',
                  embedding_dim=100,
+                 embedding_weights=None,
+                 embedding_trainable=None,
                  rnn_layer_num=1,
                  rnn_units=50,
                  rnn_keep_num=1,
@@ -21,6 +23,8 @@ class BiLM(object):
         :param token_num: Number of words or characters.
         :param model_path: Path of saved model. All the other parameters will be ignored if path is not empty.
         :param embedding_dim: The dimension of embedding layer.
+        :param embedding_weights: The initial weights of embedding layer.
+        :param embedding_trainable: Whether the embedding layer is trainable.
         :param rnn_layer_num: The number of stacked bidirectional RNNs.
         :param rnn_units: An integer or a list representing the number of units of RNNs in one direction.
         :param rnn_keep_num: How many layers are used for predicting the probabilities of the next word.
@@ -44,8 +48,12 @@ class BiLM(object):
 
         input_layer = keras.layers.Input(shape=(None,),
                                          name='Bi-LM-Input')
+        if embedding_trainable is None:
+            embedding_trainable = embedding_weights is None
         embedding_layer = keras.layers.Embedding(input_dim=token_num,
                                                  output_dim=embedding_dim,
+                                                 weights=embedding_weights,
+                                                 trainable=embedding_trainable,
                                                  name='Bi-LM-Embedding')(input_layer)
 
         last_layer_forward, last_layer_backward = embedding_layer, embedding_layer
