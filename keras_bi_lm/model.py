@@ -7,6 +7,7 @@ class BiLM(object):
     def __init__(self,
                  token_num=128,
                  model_path='',
+                 has_embedding=True,
                  embedding_dim=100,
                  embedding_weights=None,
                  embedding_trainable=None,
@@ -22,6 +23,8 @@ class BiLM(object):
 
         :param token_num: Number of words or characters.
         :param model_path: Path of saved model. All the other parameters will be ignored if path is not empty.
+        :param has_embedding: The embedding_dim should still be provided if there is no embedding layer for computing
+                              the shapes of weights.
         :param embedding_dim: The dimension of embedding layer.
         :param embedding_weights: The initial weights of embedding layer.
         :param embedding_trainable: Whether the embedding layer is trainable.
@@ -46,15 +49,22 @@ class BiLM(object):
         if not isinstance(rnn_recurrent_dropouts, list):
             rnn_recurrent_dropouts = [rnn_recurrent_dropouts] * rnn_layer_num
 
-        input_layer = keras.layers.Input(shape=(None,),
-                                         name='Bi-LM-Input')
-        if embedding_trainable is None:
-            embedding_trainable = embedding_weights is None
-        embedding_layer = keras.layers.Embedding(input_dim=token_num,
-                                                 output_dim=embedding_dim,
-                                                 weights=embedding_weights,
-                                                 trainable=embedding_trainable,
-                                                 name='Bi-LM-Embedding')(input_layer)
+        if has_embedding:
+            input_layer = keras.layers.Input(shape=(None,),
+                                             name='Bi-LM-Input')
+            if embedding_trainable is None:
+                embedding_trainable = embedding_weights is None
+            if embedding_weights is not None and not isinstance(embedding_weights, list):
+                embedding_weights = [embedding_weights]
+            embedding_layer = keras.layers.Embedding(input_dim=token_num,
+                                                     output_dim=embedding_dim,
+                                                     weights=embedding_weights,
+                                                     trainable=embedding_trainable,
+                                                     name='Bi-LM-Embedding')(input_layer)
+        else:
+            input_layer = keras.layers.Input(shape=(None, embedding_dim),
+                                             name='Bi-LM-Input')
+            embedding_layer = input_layer
 
         last_layer_forward, last_layer_backward = embedding_layer, embedding_layer
         rnn_layers_forward, rnn_layers_backward = [], []
@@ -63,7 +73,7 @@ class BiLM(object):
         else:
             rnn = keras.layers.LSTM
         for i in range(rnn_layer_num):
-            if rnn_layer_num == 1:
+            if rnn_layer_num == 1 or (rnn_keep_num == 1 and i == rnn_layer_num - 1):
                 name = 'Bi-LM-Forward'
             else:
                 name = 'Bi-LM-%s-Forward-%d' % (rnn_type.upper(), i + 1)
@@ -86,7 +96,7 @@ class BiLM(object):
                                         name=name)(last_layer_forward)
             last_layer_forward = rnn_layer_forward
             rnn_layers_forward.append(rnn_layer_forward)
-            if rnn_layer_num == 1:
+            if rnn_layer_num == 1 or (rnn_keep_num == 1 and i == rnn_layer_num - 1):
                 name = 'Bi-LM-Backward'
             else:
                 name = 'Bi-LM-%s-Backward-%d' % (rnn_type.upper(), i + 1)

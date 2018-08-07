@@ -47,3 +47,22 @@ class TestGetFeatureLayers(unittest.TestCase):
                 self.assertEqual(layer.get_weights(), new_layer.get_weights())
             except ValueError:
                 pass
+
+    def test_no_embedding(self):
+        input_layer = keras.layers.Input((None, 106), name='New-Input')
+        bi_lm = BiLM(token_num=105,
+                     has_embedding=False,
+                     embedding_dim=106,
+                     rnn_layer_num=6,
+                     rnn_keep_num=1,
+                     rnn_units=50,
+                     rnn_type='lstm')
+        output_layer = bi_lm.get_feature_layers(input_layer=input_layer)
+        model = keras.models.Model(inputs=input_layer, outputs=output_layer)
+        model.summary()
+        for layer in bi_lm.model.layers:
+            try:
+                new_layer = model.get_layer(name=layer.name)
+                self.assertEqual(layer.get_weights(), new_layer.get_weights())
+            except ValueError:
+                pass
