@@ -1,7 +1,7 @@
 # Keras Bi-LM
 
-[![Travis](https://travis-ci.org/PoWWoP/keras_bi_lm.svg)](https://travis-ci.org/PoWWoP/keras_bi_lm)
-[![Coverage](https://coveralls.io/repos/github/PoWWoP/keras_bi_lm/badge.svg?branch=master)](https://coveralls.io/github/PoWWoP/keras_bi_lm)
+[![Travis](https://travis-ci.org/PoWWoP/keras-bi-lm.svg)](https://travis-ci.org/PoWWoP/keras-bi-lm)
+[![Coverage](https://coveralls.io/repos/github/PoWWoP/keras-bi-lm/badge.svg?branch=master)](https://coveralls.io/github/PoWWoP/keras-bi-lm)
 
 ## Introduction
 
@@ -20,7 +20,7 @@ pip install keras-bi-lm
 Before using it as a feature extraction method, the language model must be trained on large corpora.
 
 ```python
-from keras_bi_lm import BiLM
+from keras-bi-lm import BiLM
 
 sentences = [
     ['All', 'work', 'and', 'no', 'play'],
@@ -73,7 +73,7 @@ A helper function that converts sentences to batch inputs and outputs for traini
 ### Load and use the Bi-LM model
 
 ```python
-from keras_bi_lm import BiLM
+from keras-bi-lm import BiLM
 
 bi_lm = BiLM(model_path='bi_lm.h5')  # or `bi_lm.load_model('bi_lm.h5')`
 input_layer, output_layer = bi_lm.get_feature_layers()

@@ -3,13 +3,13 @@ Keras Bi-LM
 ===========
 
 
-.. image:: https://travis-ci.org/PoWWoP/keras_bi_lm.svg
-   :target: https://travis-ci.org/PoWWoP/keras_bi_lm
+.. image:: https://travis-ci.org/PoWWoP/keras-bi-lm.svg
+   :target: https://travis-ci.org/PoWWoP/keras-bi-lm
    :alt: Travis
 
 
-.. image:: https://coveralls.io/repos/github/PoWWoP/keras_bi_lm/badge.svg?branch=master
-   :target: https://coveralls.io/github/PoWWoP/keras_bi_lm
+.. image:: https://coveralls.io/repos/github/PoWWoP/keras-bi-lm/badge.svg?branch=master
+   :target: https://coveralls.io/github/PoWWoP/keras-bi-lm
    :alt: Coverage
 
 
@@ -35,7 +35,7 @@ Before using it as a feature extraction method, the language model must be train
 
 .. code-block:: python
 
-   from keras_bi_lm import BiLM
+   from keras-bi-lm import BiLM
 
    sentences = [
        ['All', 'work', 'and', 'no', 'play'],
@@ -93,7 +93,7 @@ Load and use the Bi-LM model
 
 .. code-block:: python
 
-   from keras_bi_lm import BiLM
+   from keras-bi-lm import BiLM
 
    bi_lm = BiLM(model_path='bi_lm.h5')  # or `bi_lm.load_model('bi_lm.h5')`
    input_layer, output_layer = bi_lm.get_feature_layers()
