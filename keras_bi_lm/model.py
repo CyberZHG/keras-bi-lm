@@ -99,28 +99,24 @@ class BiLM(object):
                                         name=name)(last_layer_forward)
             last_layer_forward = rnn_layer_forward
             rnn_layers_forward.append(rnn_layer_forward)
-            if rnn_layer_num == 1 or (rnn_keep_num == 1 and i == rnn_layer_num - 1):
-                name = 'Bi-LM-Backward'
-            else:
-                name = 'Bi-LM-%s-Backward-%d' % (rnn_type.upper(), i + 1)
             if use_bidirectional:
                 rnn_layer_backward = keras.layers.Bidirectional(
                     rnn(
                         units=rnn_units[i],
                         dropout=rnn_dropouts[i],
                         recurrent_dropout=rnn_recurrent_dropouts[i],
-                        go_backwards=True,
+                        go_backwards=i == 0,
                         return_sequences=True,
                     ),
-                    name=name,
+                    name='Bi-LM-%s-Backward-%d' % (rnn_type.upper(), i + 1),
                 )(last_layer_backward)
             else:
                 rnn_layer_backward = rnn(units=rnn_units[i],
                                          dropout=rnn_dropouts[i],
                                          recurrent_dropout=rnn_recurrent_dropouts[i],
-                                         go_backwards=True,
+                                         go_backwards=i == 0,
                                          return_sequences=True,
-                                         name=name)(last_layer_backward)
+                                         name='Bi-LM-%s-Backward-%d' % (rnn_type.upper(), i + 1))(last_layer_backward)
             last_layer_backward = rnn_layer_backward
             rnn_layers_backward.append(rnn_layer_backward)
 
@@ -132,7 +128,16 @@ class BiLM(object):
             last_layer_backward = rnn_layers_backward[0]
         else:
             last_layer_forward = keras.layers.Concatenate(name='Bi-LM-Forward')(rnn_layers_forward)
-            last_layer_backward = keras.layers.Concatenate(name='Bi-LM-Backward')(rnn_layers_backward)
+            last_layer_backward = keras.layers.Concatenate(name='Bi-LM-Backward-Rev')(rnn_layers_backward)
+
+        def reverse_output(x):
+            from keras import backend as K
+            return K.reverse(x, 1)
+
+        last_layer_backward = keras.layers.Lambda(
+            function=reverse_output,
+            name='Bi-LM-Backward',
+        )(last_layer_backward)
 
         dense_layer_forward = keras.layers.Dense(units=token_num,
                                                  activation='softmax',
