@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='keras-bi-lm',
-    version='0.0.11',
+    version='0.0.12',
     packages=['keras_bi_lm'],
     url='https://github.com/PoWWoP/keras-bi-lm',
     license='MIT',

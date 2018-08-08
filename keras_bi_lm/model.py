@@ -11,6 +11,7 @@ class BiLM(object):
                  embedding_dim=100,
                  embedding_weights=None,
                  embedding_trainable=None,
+                 mask_zero=True,
                  rnn_layer_num=1,
                  rnn_units=50,
                  rnn_keep_num=1,
@@ -28,6 +29,7 @@ class BiLM(object):
         :param embedding_dim: The dimension of embedding layer.
         :param embedding_weights: The initial weights of embedding layer.
         :param embedding_trainable: Whether the embedding layer is trainable.
+        :param mask_zero: Support masking in embedding layer.
         :param rnn_layer_num: The number of stacked bidirectional RNNs.
         :param rnn_units: An integer or a list representing the number of units of RNNs in one direction.
         :param rnn_keep_num: How many layers are used for predicting the probabilities of the next word.
@@ -60,6 +62,7 @@ class BiLM(object):
                                                      output_dim=embedding_dim,
                                                      weights=embedding_weights,
                                                      trainable=embedding_trainable,
+                                                     mask_zero=mask_zero,
                                                      name='Bi-LM-Embedding')(input_layer)
         else:
             input_layer = keras.layers.Input(shape=(None, embedding_dim),

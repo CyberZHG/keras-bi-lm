@@ -43,11 +43,11 @@ class TestFitPredict(unittest.TestCase):
         forward = predict[0].argmax(axis=-1)
         backward = predict[1].argmax(axis=-1)
         self.assertEqual('work and no play <EOS>',
-                         ' '.join(map(lambda x: token_dict_rev[x], forward[0].tolist())).strip())
+                         ' '.join(map(lambda x: token_dict_rev[x], forward[0].tolist()[:-1])).strip())
         self.assertEqual('<UNK> a dull boy . <EOS>',
                          ' '.join(map(lambda x: token_dict_rev[x], forward[1].tolist())).strip())
         self.assertEqual('<EOS> all work and no',
-                         ' '.join(map(lambda x: token_dict_rev[x], backward[0].tolist())).strip())
+                         ' '.join(map(lambda x: token_dict_rev[x], backward[0].tolist()[:-1])).strip())
         self.assertEqual('<EOS> makes <UNK> a dull boy',
                          ' '.join(map(lambda x: token_dict_rev[x], backward[1].tolist())).strip())
 
@@ -89,10 +89,10 @@ class TestFitPredict(unittest.TestCase):
         forward = predict[0].argmax(axis=-1)
         backward = predict[1].argmax(axis=-1)
         self.assertEqual('work and no play <EOS>',
-                         ' '.join(map(lambda x: token_dict_rev[x], forward[0].tolist())).strip())
+                         ' '.join(map(lambda x: token_dict_rev[x], forward[0].tolist()[:-1])).strip())
         self.assertEqual('<UNK> a dull boy . <EOS>',
                          ' '.join(map(lambda x: token_dict_rev[x], forward[1].tolist())).strip())
         self.assertEqual('<EOS> all work and no',
-                         ' '.join(map(lambda x: token_dict_rev[x], backward[0].tolist())).strip())
+                         ' '.join(map(lambda x: token_dict_rev[x], backward[0].tolist()[:-1])).strip())
         self.assertEqual('<EOS> makes <UNK> a dull boy',
                          ' '.join(map(lambda x: token_dict_rev[x], backward[1].tolist())).strip())
