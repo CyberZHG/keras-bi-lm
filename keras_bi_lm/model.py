@@ -69,7 +69,17 @@ class BiLM(object):
                                              name='Bi-LM-Input')
             embedding_layer = input_layer
 
-        last_layer_forward, last_layer_backward = embedding_layer, embedding_layer
+        def reverse_x(x):
+            if x is None:
+                return None
+            from keras import backend as K
+            return K.reverse(x, 1)
+
+        last_layer_forward, last_layer_backward = embedding_layer, keras.layers.Lambda(
+            function=reverse_x,
+            mask=lambda _, mask: reverse_x(mask),
+            name='Reverse'
+        )(embedding_layer)
         rnn_layers_forward, rnn_layers_backward = [], []
         if rnn_type.lower() == 'gru':
             rnn = keras.layers.GRU
@@ -94,29 +104,27 @@ class BiLM(object):
                 rnn_layer_forward = rnn(units=rnn_units[i],
                                         dropout=rnn_dropouts[i],
                                         recurrent_dropout=rnn_recurrent_dropouts[i],
-                                        go_backwards=False,
                                         return_sequences=True,
                                         name=name)(last_layer_forward)
             last_layer_forward = rnn_layer_forward
             rnn_layers_forward.append(rnn_layer_forward)
+            name = 'Bi-LM-%s-Backward-%d' % (rnn_type.upper(), i + 1)
             if use_bidirectional:
                 rnn_layer_backward = keras.layers.Bidirectional(
                     rnn(
                         units=rnn_units[i],
                         dropout=rnn_dropouts[i],
                         recurrent_dropout=rnn_recurrent_dropouts[i],
-                        go_backwards=i == 0,
                         return_sequences=True,
                     ),
-                    name='Bi-LM-%s-Backward-%d' % (rnn_type.upper(), i + 1),
+                    name=name,
                 )(last_layer_backward)
             else:
                 rnn_layer_backward = rnn(units=rnn_units[i],
                                          dropout=rnn_dropouts[i],
                                          recurrent_dropout=rnn_recurrent_dropouts[i],
-                                         go_backwards=i == 0,
                                          return_sequences=True,
-                                         name='Bi-LM-%s-Backward-%d' % (rnn_type.upper(), i + 1))(last_layer_backward)
+                                         name=name)(last_layer_backward)
             last_layer_backward = rnn_layer_backward
             rnn_layers_backward.append(rnn_layer_backward)
 
@@ -130,13 +138,10 @@ class BiLM(object):
             last_layer_forward = keras.layers.Concatenate(name='Bi-LM-Forward')(rnn_layers_forward)
             last_layer_backward = keras.layers.Concatenate(name='Bi-LM-Backward-Rev')(rnn_layers_backward)
 
-        def reverse_output(x):
-            from keras import backend as K
-            return K.reverse(x, 1)
-
         last_layer_backward = keras.layers.Lambda(
-            function=reverse_output,
-            name='Bi-LM-Backward',
+            function=reverse_x,
+            mask=lambda _, mask: reverse_x(mask),
+            name='Bi-LM-Backward'
         )(last_layer_backward)
 
         dense_layer_forward = keras.layers.Dense(units=token_num,
