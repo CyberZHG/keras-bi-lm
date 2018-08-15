@@ -1,7 +1,7 @@
 # Keras Bi-LM
 
-[![Travis](https://travis-ci.org/PoWWoP/keras-bi-lm.svg)](https://travis-ci.org/PoWWoP/keras-bi-lm)
-[![Coverage](https://coveralls.io/repos/github/PoWWoP/keras-bi-lm/badge.svg?branch=master)](https://coveralls.io/github/PoWWoP/keras-bi-lm)
+[![Travis](https://travis-ci.org/CyberZHG/keras-bi-lm.svg)](https://travis-ci.org/CyberZHG/keras-bi-lm)
+[![Coverage](https://coveralls.io/repos/github/CyberZHG/keras-bi-lm/badge.svg?branch=master)](https://coveralls.io/github/CyberZHG/keras-bi-lm)
 
 ## Introduction
 

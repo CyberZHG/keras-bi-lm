@@ -3,13 +3,13 @@ Keras Bi-LM
 ===========
 
 
-.. image:: https://travis-ci.org/PoWWoP/keras-bi-lm.svg
-   :target: https://travis-ci.org/PoWWoP/keras-bi-lm
+.. image:: https://travis-ci.org/CyberZHG/keras-bi-lm.svg
+   :target: https://travis-ci.org/CyberZHG/keras-bi-lm
    :alt: Travis
 
 
-.. image:: https://coveralls.io/repos/github/PoWWoP/keras-bi-lm/badge.svg?branch=master
-   :target: https://coveralls.io/github/PoWWoP/keras-bi-lm
+.. image:: https://coveralls.io/repos/github/CyberZHG/keras-bi-lm/badge.svg?branch=master
+   :target: https://coveralls.io/github/CyberZHG/keras-bi-lm
    :alt: Coverage
 
 
