@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='keras-bi-lm',
-    version='0.0.17',
+    version='0.18',
     packages=['keras_bi_lm'],
     url='https://github.com/CyberZHG/keras-bi-lm',
     license='MIT',
@@ -15,8 +15,8 @@ setup(
         'keras',
     ],
     classifiers=(
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 3.7",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ),

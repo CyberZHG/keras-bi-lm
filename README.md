@@ -5,7 +5,7 @@
 
 ## Introduction
 
-The repository contains a class for training a bidirectional language model which could be used as a feature extraction method for each position in a sentence.
+The repository contains a class for training a bidirectional language model that extracts features for each position in a sentence.
 
 ## Install
 
@@ -17,10 +17,10 @@ pip install keras-bi-lm
 
 ### Train and save the Bi-LM model
 
-Before using it as a feature extraction method, the language model must be trained on large corpora.
+Before using it as a feature extraction method, the language model must be trained on a large corpora.
 
 ```python
-from keras-bi-lm import BiLM
+from keras_bi_lm import BiLM
 
 sentences = [
     ['All', 'work', 'and', 'no', 'play'],
@@ -73,7 +73,7 @@ A helper function that converts sentences to batch inputs and outputs for traini
 ### Load and use the Bi-LM model
 
 ```python
-from keras-bi-lm import BiLM
+from keras_bi_lm import BiLM
 
 bi_lm = BiLM(model_path='bi_lm.h5')  # or `bi_lm.load_model('bi_lm.h5')`
 input_layer, output_layer = bi_lm.get_feature_layers()

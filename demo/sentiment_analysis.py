@@ -3,7 +3,7 @@ import codecs
 import random
 import numpy
 import keras
-from keras_wc_embd import get_dicts_generator, get_word_list_eng
+from keras_wc_embd import WordCharEmbd, get_word_list_eng
 from keras_bi_lm import BiLM
 
 DEBUG = False
@@ -48,7 +48,7 @@ print('Train: %d  Validate: %d' % (train_num, val_num))
 
 # Generate dictionaries for words and characters
 print('Get dictionary`....')
-dicts_generator = get_dicts_generator(
+wc_embd = WordCharEmbd(
     word_min_freq=5,
     char_min_freq=2,
     word_ignore_case=True,
@@ -60,14 +60,14 @@ for file_name in train_pos_files:
         text = reader.read().strip()
         sentence = get_word_list_eng(text)
         sentences.append(sentence)
-        dicts_generator(sentence=sentence)
+        wc_embd.update_dicts(sentence)
 for file_name in train_neg_files:
     with codecs.open(os.path.join(TRAIN_ROOT, 'neg', file_name), 'r', 'utf8') as reader:
         text = reader.read().strip()
         sentence = get_word_list_eng(text)
         sentences.append(sentence)
-        dicts_generator(sentence=sentence)
-word_dict, _, _ = dicts_generator(return_dict=True)
+        wc_embd.update_dicts(sentence)
+word_dict = wc_embd.get_word_dict()
 print('Word dict size: %d' % len(word_dict))
 
 
