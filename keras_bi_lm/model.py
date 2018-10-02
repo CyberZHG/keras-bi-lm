@@ -154,7 +154,7 @@ class BiLM(object):
         model = keras.models.Model(inputs=input_layer, outputs=[dense_layer_forward, dense_layer_backward])
         model.compile(optimizer=keras.optimizers.Adam(lr=learning_rate),
                       loss=keras.losses.sparse_categorical_crossentropy,
-                      metrics=[keras.metrics.sparse_categorical_accuracy])
+                      metrics={})
         self.model = model
 
     def save_model(self, model_path):

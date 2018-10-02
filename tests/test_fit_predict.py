@@ -33,12 +33,14 @@ class TestFitPredict(unittest.TestCase):
                                          eos_index=token_dict['<EOS>'])
         bi_lm = BiLM(token_num=len(token_dict), embedding_dim=10, rnn_units=10)
         bi_lm.model.summary()
-        bi_lm.fit(np.repeat(inputs, 2 ** 12, axis=0),
-                  [
-                      np.repeat(outputs[0], 2 ** 12, axis=0),
-                      np.repeat(outputs[1], 2 ** 12, axis=0),
-                  ],
-                  epochs=5)
+        bi_lm.fit(
+            np.repeat(inputs, 2 ** 12, axis=0),
+            [
+                np.repeat(outputs[0], 2 ** 12, axis=0),
+                np.repeat(outputs[1], 2 ** 12, axis=0),
+            ],
+            epochs=5,
+        )
         predict = bi_lm.predict(inputs)
         forward = predict[0].argmax(axis=-1)
         backward = predict[1].argmax(axis=-1)
@@ -79,12 +81,14 @@ class TestFitPredict(unittest.TestCase):
                                          eos_index=token_dict['<EOS>'])
         bi_lm = BiLM(token_num=len(token_dict), embedding_dim=10, rnn_units=10, use_bidirectional=True)
         bi_lm.model.summary()
-        bi_lm.fit(np.repeat(inputs, 2 ** 12, axis=0),
-                  [
-                      np.repeat(outputs[0], 2 ** 12, axis=0),
-                      np.repeat(outputs[1], 2 ** 12, axis=0),
-                  ],
-                  epochs=5)
+        bi_lm.fit(
+            np.repeat(inputs, 2 ** 12, axis=0),
+            [
+                np.repeat(outputs[0], 2 ** 12, axis=0),
+                np.repeat(outputs[1], 2 ** 12, axis=0),
+            ],
+            epochs=5,
+        )
         predict = bi_lm.predict(inputs)
         forward = predict[0].argmax(axis=-1)
         backward = predict[1].argmax(axis=-1)
