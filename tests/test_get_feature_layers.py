@@ -73,7 +73,8 @@ class TestGetFeatureLayers(unittest.TestCase):
                      rnn_layer_num=6,
                      rnn_keep_num=7,
                      rnn_units=108,
-                     rnn_type='lstm')
+                     rnn_type='lstm',
+                     use_normalization=True)
         input_layer, output_layer = bi_lm.get_feature_layers(use_weighted_sum=True)
         model = keras.models.Model(inputs=input_layer, outputs=output_layer)
         model.summary()

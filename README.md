@@ -93,7 +93,8 @@ bi_lm = BiLM(token_num=20000,
              rnn_layer_num=3,
              rnn_keep_num=4,
              rnn_units=300,
-             rnn_type='lstm')
+             rnn_type='lstm',
+             use_normalization=True)
 # ...
 # Train the Bi-LM model
 # ...
