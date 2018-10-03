@@ -83,6 +83,28 @@ model.summary()
 
 The `output_layer` is the time-distributed feature and all the parameters in the layers of the model are not trainable.
 
+### Use ELMo-like Weighted Sum of Trained Layers
+
+```python
+from keras_bi_lm import BiLM
+
+bi_lm = BiLM(token_num=20000,
+             embedding_dim=300,
+             rnn_layer_num=3,
+             rnn_keep_num=4,
+             rnn_units=300,
+             rnn_type='lstm')
+# ...
+# Train the Bi-LM model
+# ...
+
+input_layer, output_layer = bi_lm.get_feature_layers(use_weighted_sum=True)
+model = keras.models.Model(inputs=input_layer, outputs=output_layer)
+model.summary()
+```
+
+When `rnn_keep_num` is greater than `rnn_layer_num`, the embedding layer is also used for weighting.
+
 ## Demo
 
 See `demo` directory:

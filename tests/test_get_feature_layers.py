@@ -66,3 +66,14 @@ class TestGetFeatureLayers(unittest.TestCase):
                 self.assertEqual(layer.get_weights(), new_layer.get_weights())
             except ValueError:
                 pass
+
+    def test_weighted_sum(self):
+        bi_lm = BiLM(token_num=107,
+                     embedding_dim=108,
+                     rnn_layer_num=6,
+                     rnn_keep_num=7,
+                     rnn_units=108,
+                     rnn_type='lstm')
+        input_layer, output_layer = bi_lm.get_feature_layers(use_weighted_sum=True)
+        model = keras.models.Model(inputs=input_layer, outputs=output_layer)
+        model.summary()
