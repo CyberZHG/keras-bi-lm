@@ -19,6 +19,7 @@ class BiLM(object):
                  rnn_dropouts=0.1,
                  rnn_recurrent_dropouts=0.1,
                  use_bidirectional=False,
+                 use_normalization=False,
                  learning_rate=1e-3):
         """Initialize Bi-LM model.
 
@@ -37,6 +38,7 @@ class BiLM(object):
         :param rnn_dropouts: A float or a list representing the dropout of the RNN unit.
         :param rnn_recurrent_dropouts: A float or a list representing the recurrent dropout of the RNN unit.
         :param use_bidirectional: Use bidirectional RNN in both forward and backward prediction.
+        :param use_normalization: Whether to use normalization before recurrent layers.
         :param learning_rate: Learning rate.
 
         :return model: The built model.
@@ -90,6 +92,8 @@ class BiLM(object):
                 name = 'Bi-LM-Forward'
             else:
                 name = 'Bi-LM-%s-Forward-%d' % (rnn_type.upper(), i + 1)
+            if use_normalization:
+                last_layer_forward = keras.layers.BatchNormalization(name=name + '-Norm')(last_layer_forward)
             if use_bidirectional:
                 rnn_layer_forward = keras.layers.Bidirectional(
                     rnn(
@@ -109,6 +113,8 @@ class BiLM(object):
             last_layer_forward = rnn_layer_forward
             rnn_layers_forward.append(rnn_layer_forward)
             name = 'Bi-LM-%s-Backward-%d' % (rnn_type.upper(), i + 1)
+            if use_normalization:
+                last_layer_backward = keras.layers.BatchNormalization(name=name + '-Norm')(last_layer_backward)
             if use_bidirectional:
                 rnn_layer_backward = keras.layers.Bidirectional(
                     rnn(

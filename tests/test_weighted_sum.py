@@ -40,3 +40,28 @@ class TestWeightedSum(unittest.TestCase):
         predict = model.predict(inputs)
         expect = np.asarray([[1., 10. / 3., 17 / 3., 13 / 3., 22. / 3.]])
         self.assertTrue(np.allclose(expect, predict), (expect, predict))
+
+    def test_sum_single(self):
+        input_layer = keras.layers.Input(shape=(5,), name='Input')
+        weighted_layer = WeightedSum(name='WeightedSum')(input_layer)
+        model = keras.models.Model(
+            inputs=input_layer,
+            outputs=weighted_layer,
+        )
+        model.compile(
+            optimizer='adam',
+            loss='mse',
+            metrics={},
+        )
+        model_path = os.path.join(self.tmp_path, 'save_load.h5')
+        model.save(model_path)
+        model = keras.models.load_model(
+            model_path,
+            custom_objects={'WeightedSum': WeightedSum},
+        )
+        inputs = [
+            np.asarray([[1., 2., 3., 4., 5.]]),
+        ]
+        predict = model.predict(inputs)
+        expect = np.asarray([[1., 2., 3., 4., 5.]])
+        self.assertTrue(np.allclose(expect, predict), (expect, predict))

@@ -31,7 +31,7 @@ class TestFitPredict(unittest.TestCase):
                                          ignore_case=True,
                                          unk_index=token_dict['<UNK>'],
                                          eos_index=token_dict['<EOS>'])
-        bi_lm = BiLM(token_num=len(token_dict), embedding_dim=10, rnn_units=10)
+        bi_lm = BiLM(token_num=len(token_dict), embedding_dim=10, rnn_units=10, use_normalization=True)
         bi_lm.model.summary()
         bi_lm.fit(
             np.repeat(inputs, 2 ** 12, axis=0),
