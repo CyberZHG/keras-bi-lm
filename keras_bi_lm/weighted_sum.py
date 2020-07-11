@@ -1,9 +1,11 @@
-import keras
-import keras.backend as K
+from.backend import keras
+from.backend import backend as K
+
+__all__ = ['WeightedSum']
 
 
 class WeightedSum(keras.layers.Layer):
-    """Sum the layers with trainable weights. All the layers should have the same shape and mask.
+    r"""Sum the layers with trainable weights. All the layers should have the same shape and mask.
 
     h = \gamma * \sum_{i=0}^L w_i h_i
 

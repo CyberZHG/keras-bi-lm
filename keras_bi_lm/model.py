@@ -1,6 +1,29 @@
-import keras
 import numpy as np
+
+from .backend import keras
 from .weighted_sum import WeightedSum
+
+
+__all__ = ['Reverse', 'BiLM']
+
+
+class Reverse(keras.layers.Layer):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def compute_mask(self, inputs, mask=None):
+        return self._reverse(mask)
+
+    def call(self, inputs, **kwargs):
+        return self._reverse(inputs)
+
+    @staticmethod
+    def _reverse(x):
+        if x is None:
+            return None
+        from keras import backend as K
+        return K.reverse(x, 1)
 
 
 class BiLM(object):
@@ -72,11 +95,7 @@ class BiLM(object):
                                              name='Bi-LM-Input')
             embedding_layer = input_layer
 
-        last_layer_forward, last_layer_backward = embedding_layer, keras.layers.Lambda(
-            function=self._reverse_x,
-            mask=lambda _, mask: self._reverse_x(mask),
-            name='Reverse'
-        )(embedding_layer)
+        last_layer_forward, last_layer_backward = embedding_layer, Reverse(name='Reverse')(embedding_layer)
         self.rnn_layers_forward, self.rnn_layers_backward = [last_layer_forward], [last_layer_backward]
         if rnn_type.lower() == 'gru':
             rnn = keras.layers.GRU
@@ -139,11 +158,7 @@ class BiLM(object):
             last_layer_forward = keras.layers.Concatenate(name='Bi-LM-Forward')(self.rnn_layers_forward)
             last_layer_backward = keras.layers.Concatenate(name='Bi-LM-Backward-Rev')(self.rnn_layers_backward)
 
-        last_layer_backward = keras.layers.Lambda(
-            function=self._reverse_x,
-            mask=lambda _, mask: self._reverse_x(mask),
-            name='Bi-LM-Backward'
-        )(last_layer_backward)
+        last_layer_backward = Reverse(name='Bi-LM-Backward')(last_layer_backward)
 
         dense_layer_forward = keras.layers.Dense(units=token_num,
                                                  activation='softmax',
@@ -162,7 +177,7 @@ class BiLM(object):
         self.model.save(model_path)
 
     def load_model(self, model_path):
-        self.model = keras.models.load_model(model_path)
+        self.model = keras.models.load_model(model_path, custom_objects={'Reverse': Reverse})
 
     @staticmethod
     def get_batch(sentences,
@@ -231,7 +246,7 @@ class BiLM(object):
 
         :return [input_layer,] output_layer: Input and output layer.
         """
-        model = keras.models.clone_model(self.model, input_layer)
+        model = keras.models.clone_model(self.model)
         if not trainable:
             for layer in model.layers:
                 layer.trainable = False
@@ -246,23 +261,12 @@ class BiLM(object):
             ))
             forward_layer = WeightedSum(name='Bi-LM-Forward-Sum')(rnn_layers_forward)
             backward_layer_rev = WeightedSum(name='Bi-LM-Backward-Sum-Rev')(rnn_layers_backward)
-            backward_layer = keras.layers.Lambda(
-                function=self._reverse_x,
-                mask=lambda _, mask: self._reverse_x(mask),
-                name='Bi-LM-Backward-Sum'
-            )(backward_layer_rev)
+            backward_layer = Reverse(name='Bi-LM-Backward-Sum')(backward_layer_rev)
         else:
             forward_layer = model.get_layer(name='Bi-LM-Forward').output
             backward_layer = model.get_layer(name='Bi-LM-Backward').output
         output_layer = keras.layers.Concatenate(name='Bi-LM-Feature')([forward_layer, backward_layer])
-        if input_layer is None:
-            input_layer = model.layers[0].input
-            return input_layer, output_layer
-        return output_layer
-
-    @staticmethod
-    def _reverse_x(x):
-        if x is None:
-            return None
-        from keras import backend as K
-        return K.reverse(x, 1)
+        if input_layer is not None:
+            return model(input_layer)
+        input_layer = model.layers[0].input
+        return input_layer, output_layer
