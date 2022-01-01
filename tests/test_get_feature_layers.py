@@ -1,5 +1,7 @@
 import unittest
-from keras_bi_lm.backend import keras
+
+from tensorflow import keras
+
 from keras_bi_lm import BiLM
 
 

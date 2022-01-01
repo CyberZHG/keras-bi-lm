@@ -1,8 +1,10 @@
 import os
 import unittest
 import tempfile
+
 import numpy as np
-from keras_bi_lm.backend import keras
+from tensorflow import keras
+
 from keras_bi_lm.weighted_sum import WeightedSum
 
 

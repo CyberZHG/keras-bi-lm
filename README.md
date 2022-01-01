@@ -1,8 +1,5 @@
 # Keras Bi-LM
 
-[![Travis](https://travis-ci.org/CyberZHG/keras-bi-lm.svg)](https://travis-ci.org/CyberZHG/keras-bi-lm)
-[![Coverage](https://coveralls.io/repos/github/CyberZHG/keras-bi-lm/badge.svg?branch=master)](https://coveralls.io/github/CyberZHG/keras-bi-lm)
-
 ## Introduction
 
 The repository contains a class for training a bidirectional language model that extracts features for each position in a sentence.

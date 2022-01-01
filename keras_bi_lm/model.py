@@ -1,6 +1,6 @@
 import numpy as np
+from tensorflow import keras
 
-from .backend import keras
 from .weighted_sum import WeightedSum
 
 
